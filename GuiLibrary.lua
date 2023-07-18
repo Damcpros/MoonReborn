@@ -2,6 +2,8 @@ local lplr = game.Players.LocalPlayer
 local UI = Instance.new("ScreenGui",lplr.PlayerGui)
 UI.ResetOnSpawn = false
 
+local canDoStuff = true
+
 local mouse = lplr:GetMouse()
 local function getMousePos()
 	return UDim2.fromScale(mouse.X / mouse.ViewSizeX,mouse.Y / mouse.ViewSizeY)
@@ -29,6 +31,7 @@ end
 
 
 local function saveConfig()
+	if not canDoStuff then return end
 	task.spawn(function()
 		if isfile(configPath) then
 			delfile(configPath)
@@ -203,6 +206,7 @@ local GuiLibrary = {
 					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
 				end
 				ToggleInst.FocusLost:Connect(function()
+					if not canDoStuff then return end
 					config.TextBox[tab["Name"]:gsub(" ","_")].Text = ToggleInst.Text
 					toggle.Value = ToggleInst.Text
 					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
@@ -223,6 +227,7 @@ local GuiLibrary = {
 				toggle = {
 					Enabled = false,
 					Toggle = function(t)
+						if not canDoStuff then return end
 						toggle.Enabled = t
 						if tab["Function"] ~= nil then
 							tab["Function"](t)
@@ -249,6 +254,7 @@ local GuiLibrary = {
 					toggle.Toggle(true)
 				end
 				ToggleInst.MouseButton1Down:Connect(function()
+					if not canDoStuff then return end
 					local v = not toggle.Enabled
 					toggle.Toggle(v)
 					config.Toggles[tab["Name"]:gsub(" ","_")].Enabled = v
@@ -270,6 +276,7 @@ local GuiLibrary = {
 				toggle = {
 					Value = tab["Options"][1],
 					SetValue = function(t)
+						if not canDoStuff then return end
 						toggle.Value = tab["Options"][t]
 						if tab["Function"] ~= nil then
 							tab["Function"](tab["Options"][t])
@@ -293,6 +300,7 @@ local GuiLibrary = {
 					end
 				end
 				PickerInst.MouseButton1Down:Connect(function()
+					if not canDoStuff then return end
 					tabIndex += 1
 					if tabIndex > #tab["Options"] then
 						tabIndex = 1
@@ -303,6 +311,7 @@ local GuiLibrary = {
 					saveConfig()
 				end)
 				PickerInst.MouseButton2Down:Connect(function()
+					if not canDoStuff then return end
 					tabIndex -= 1
 					if tabIndex < 1 then
 						tabIndex = #tab["Options"]
@@ -344,6 +353,7 @@ local GuiLibrary = {
 
 		local keybindConnection
 		keybindInst.MouseButton1Down:Connect(function()
+			if not canDoStuff then return end
 			keybindInst.Text = "  Press Any Key.."
 			keybindConnection = game:GetService("UserInputService").InputBegan:Connect(function(key, gpe)
 				if gpe then return end
@@ -373,6 +383,7 @@ local GuiLibrary = {
 			end)
 		end)
 		btn.MouseButton2Down:Connect(function()
+			if not canDoStuff then return end
 			toggleFrame.Visible = not toggleFrame.Visible
 			if toggleFrame.Visible then
 				toggleFrame.Size = UDim2.fromScale(1,0)
@@ -386,6 +397,7 @@ local GuiLibrary = {
 		end)
 
 		game:GetService("UserInputService").InputBegan:Connect(function(key, gpe)
+			if not canDoStuff then return end
 			if gpe then return end
 			if key.KeyCode == Enum.KeyCode[tostring(keybind):sub(tostring(keybind):len(),tostring(keybind):len())] then
 				funcs.Enabled = not funcs.Enabled
@@ -404,6 +416,9 @@ local GuiLibrary = {
 	end,
 	tabs = function()
 		return #tabs
+	end,
+	Uninject = function()
+		UI:Remove()
 	end,
 }
 
