@@ -406,44 +406,16 @@ local GuiLibrary = {
 		return #tabs
 	end,
 }
-shared.GuiLibrary = GuiLibrary
 
-GuiLibrary.MakeWindow({
-	["Name"] = "Test"
-})
-GuiLibrary.MakeWindow({
-	["Name"] = "Test2"
-})
+game:GetService("UserInputService").InputBegan:Connect(function(key,gpe)
+	if gpe then return end
+	if key.KeyCode == Enum.KeyCode.Delete then
+		for i,v in pairs(UI:GetDescendants()) do
+			pcall(function()
+				v.Visible = not v.Visible
+			end)
+		end
+	end
+end)
 
-local testButton = GuiLibrary.MakeButton({
-	["Name"] = "TestButton",
-	["Window"] = "Test",
-	["Function"] = function()
-
-	end,
-})
-testButton.NewToggle({
-	["Name"] = "Springs = cool",
-	["Function"] = function(v)
-		print(v)
-	end,
-})
-testButton.NewTextBox({
-	["Name"] = "Spring"
-})
-
-testButton.NewPicker({
-	["Options"] = {"Springs","Damc","Azura Devs"},
-	["Name"] = "Coolest",
-	["Function"] = function(t)
-		print(t)
-	end,
-})
-
-GuiLibrary.MakeButton({
-	["Name"] = "TestButton2",
-	["Window"] = "Test2",
-	["Function"] = function()
-
-	end,
-})
+return GuiLibrary
