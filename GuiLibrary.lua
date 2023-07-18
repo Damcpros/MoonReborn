@@ -425,11 +425,7 @@ local GuiLibrary = {
 		end)
 
 		pcall(function()
-			if config["Buttons"][tab["Name"]] ~= nil then
-				if config["Buttons"][tab["Name"]].Enabled then
-					funcs.ToggleButton(true)
-				end
-			end
+			funcs.ToggleButton(config["Buttons"][tab["Name"]].Enabled)
 		end)
 		return funcs
 	end,
