@@ -31,19 +31,22 @@ end
 
 
 local function saveConfig()
-	if not canDoStuff then return end
-	task.spawn(function()
-		if isfile(configPath) then
-			delfile(configPath)
-		end
-		task.wait(1)
-		writefile(configPath,game:GetService("HttpService"):JSONEncode(config))
-	end)
+	if canDoStuff then
+		task.spawn(function()
+			if isfile(configPath) then
+				delfile(configPath)
+			end
+			task.wait(1)
+			writefile(configPath,game:GetService("HttpService"):JSONEncode(config))
+		end)
+	end
 end
 
 local toggles = {
 
 }
+
+local toggleFunctions = {}
 
 local function loadconfig()
 	config = (game:GetService("HttpService"):JSONDecode(readfile(configPath)))
@@ -145,30 +148,32 @@ local GuiLibrary = {
 
 		funcs = {
 			ToggleButton = function(t)
-				funcs.Enabled = t
-				if t then
-					tab["Function"](true)
-					game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(0, 102, 255)}):Play()
-				else
-					tab["Function"](false)
-					btn.BackgroundTransparency = 0
-					game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(27,27,27)}):Play()
-				end
-				task.wait(0.05)
-				config["Buttons"][tab["Name"]] = {
-					Enabled = t,
-					Keybind = tostring(keybind),
-					Dropdowns = {
-						Toggles = toggles,
-						Pickers = {
+				if canDoStuff then
+					funcs.Enabled = t
+					if t then
+						tab["Function"](true)
+						game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(0, 102, 255)}):Play()
+					else
+						tab["Function"](false)
+						btn.BackgroundTransparency = 0
+						game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(27,27,27)}):Play()
+					end
+					task.wait(0.05)
+					config["Buttons"][tab["Name"]] = {
+						Enabled = t,
+						Keybind = tostring(keybind),
+						Dropdowns = {
+							Toggles = toggles,
+							Pickers = {
 
+							}
 						}
 					}
-				}
-				task.spawn(function()
-					task.wait(0.05)
-					saveConfig()
-				end)
+					task.spawn(function()
+						task.wait(0.05)
+						saveConfig()
+					end)
+				end
 			end,
 			Enabled = false,
 			NewTextBox = function(tab)
@@ -183,11 +188,13 @@ local GuiLibrary = {
 				toggle = {
 					Value = "",
 					SetValue = function(t)
-						config.TextBox[tab["Name"]:gsub(" ","_")].Text = t
-						ToggleInst.Text = t
-						toggle.Value = t
-						task.wait(0.06)
-						saveConfig()
+						if canDoStuff then
+							config.TextBox[tab["Name"]:gsub(" ","_")].Text = t
+							ToggleInst.Text = t
+							toggle.Value = t
+							task.wait(0.06)
+							saveConfig()
+						end
 					end,
 				}
 				if toggles[tab["Name"]] == nil then
@@ -206,12 +213,13 @@ local GuiLibrary = {
 					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
 				end
 				ToggleInst.FocusLost:Connect(function()
-					if not canDoStuff then return end
-					config.TextBox[tab["Name"]:gsub(" ","_")].Text = ToggleInst.Text
-					toggle.Value = ToggleInst.Text
-					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
-					task.wait(0.06)
-					saveConfig()
+					if canDoStuff then
+						config.TextBox[tab["Name"]:gsub(" ","_")].Text = ToggleInst.Text
+						toggle.Value = ToggleInst.Text
+						ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
+						task.wait(0.06)
+						saveConfig()
+					end
 				end)
 				return toggle
 			end,
@@ -227,15 +235,16 @@ local GuiLibrary = {
 				toggle = {
 					Enabled = false,
 					Toggle = function(t)
-						if not canDoStuff then return end
-						toggle.Enabled = t
-						if tab["Function"] ~= nil then
-							tab["Function"](t)
-						end
-						if t then
-							game:GetService("TweenService"):Create(ToggleInst,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(0, 102, 255)}):Play()
-						else
-							game:GetService("TweenService"):Create(ToggleInst,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(27,27,27)}):Play()
+						if canDoStuff then
+							toggle.Enabled = t
+							if tab["Function"] ~= nil then
+								tab["Function"](t)
+							end
+							if t then
+								game:GetService("TweenService"):Create(ToggleInst,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(0, 102, 255)}):Play()
+							else
+								game:GetService("TweenService"):Create(ToggleInst,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(27,27,27)}):Play()
+							end
 						end
 					end,
 				}
@@ -254,12 +263,13 @@ local GuiLibrary = {
 					toggle.Toggle(true)
 				end
 				ToggleInst.MouseButton1Down:Connect(function()
-					if not canDoStuff then return end
-					local v = not toggle.Enabled
-					toggle.Toggle(v)
-					config.Toggles[tab["Name"]:gsub(" ","_")].Enabled = v
-					task.wait(0.06)
-					saveConfig()
+					if canDoStuff then
+						local v = not toggle.Enabled
+						toggle.Toggle(v)
+						config.Toggles[tab["Name"]:gsub(" ","_")].Enabled = v
+						task.wait(0.06)
+						saveConfig()
+					end
 				end)
 				return toggle
 			end,
@@ -276,12 +286,13 @@ local GuiLibrary = {
 				toggle = {
 					Value = tab["Options"][1],
 					SetValue = function(t)
-						if not canDoStuff then return end
-						toggle.Value = tab["Options"][t]
-						if tab["Function"] ~= nil then
-							tab["Function"](tab["Options"][t])
+						if canDoStuff then
+							toggle.Value = tab["Options"][t]
+							if tab["Function"] ~= nil then
+								tab["Function"](tab["Options"][t])
+							end
+							PickerInst.Text = "  "..tab["Name"].." : "..tab["Options"][t]
 						end
-						PickerInst.Text = "  "..tab["Name"].." : "..tab["Options"][t]
 					end,
 				}
 				PickerInst.Size = UDim2.fromScale(1,0.09)
@@ -300,30 +311,33 @@ local GuiLibrary = {
 					end
 				end
 				PickerInst.MouseButton1Down:Connect(function()
-					if not canDoStuff then return end
-					tabIndex += 1
-					if tabIndex > #tab["Options"] then
-						tabIndex = 1
+					if canDoStuff then
+						tabIndex += 1
+						if tabIndex > #tab["Options"] then
+							tabIndex = 1
+						end
+						toggle.SetValue(tabIndex)
+						config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
+						task.wait(0.06)
+						saveConfig()
 					end
-					toggle.SetValue(tabIndex)
-					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
-					task.wait(0.06)
-					saveConfig()
 				end)
 				PickerInst.MouseButton2Down:Connect(function()
-					if not canDoStuff then return end
-					tabIndex -= 1
-					if tabIndex < 1 then
-						tabIndex = #tab["Options"]
+					if canDoStuff then
+						tabIndex -= 1
+						if tabIndex < 1 then
+							tabIndex = #tab["Options"]
+						end
+						toggle.SetValue(tabIndex)
+						config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
+						task.wait(0.06)
+						saveConfig()
 					end
-					toggle.SetValue(tabIndex)
-					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
-					task.wait(0.06)
-					saveConfig()
 				end)
 				return toggle
 			end,
 		}
+		table.insert(toggleFunctions,funcs)
 		btn.Size = UDim2.fromScale(1,0.05)
 		btn.BackgroundColor3 = Color3.fromRGB(27,27,27)
 		btn.TextSize = 10
@@ -333,8 +347,10 @@ local GuiLibrary = {
 		btn.BorderSizePixel = 0
 		btn.ZIndex = 3
 		btn.MouseButton1Down:Connect(function()
-			funcs.Enabled = not funcs.Enabled
-			funcs.ToggleButton(funcs.Enabled)
+			if canDoStuff then
+				funcs.Enabled = not funcs.Enabled
+				funcs.ToggleButton(funcs.Enabled)
+			end
 		end)
 
 
@@ -353,55 +369,58 @@ local GuiLibrary = {
 
 		local keybindConnection
 		keybindInst.MouseButton1Down:Connect(function()
-			if not canDoStuff then return end
-			keybindInst.Text = "  Press Any Key.."
-			keybindConnection = game:GetService("UserInputService").InputBegan:Connect(function(key, gpe)
-				if gpe then return end
-				if key.KeyCode == Enum.KeyCode.Delete or key.KeyCode == Enum.KeyCode.W or key.KeyCode == Enum.KeyCode.S or key.KeyCode == Enum.KeyCode.A or key.KeyCode == Enum.KeyCode.D or key.UserInputType == Enum.UserInputType.MouseButton1 or key.UserInputType == Enum.UserInputType.MouseButton2 then return end
-				pcall(function()
-					keybindConnection:Disconnect()
-				end)
-				task.wait(0.07)
-				keybind = key.KeyCode
-				keybindInst.Text = "  Keybind : "..tostring(keybind):sub(tostring(keybind):len(),tostring(keybind):len()):upper()
-				config["Buttons"][tab["Name"]] = {
-					Enabled = config["Buttons"][tab["Name"]].Enabled,
-					Keybind = tostring(keybind),
-					Dropdowns = {
-						Toggles = {
+			if canDoStuff then
+				keybindInst.Text = "  Press Any Key.."
+				keybindConnection = game:GetService("UserInputService").InputBegan:Connect(function(key, gpe)
+					if gpe then return end
+					if key.KeyCode == Enum.KeyCode.Delete or key.KeyCode == Enum.KeyCode.W or key.KeyCode == Enum.KeyCode.S or key.KeyCode == Enum.KeyCode.A or key.KeyCode == Enum.KeyCode.D or key.UserInputType == Enum.UserInputType.MouseButton1 or key.UserInputType == Enum.UserInputType.MouseButton2 then return end
+					pcall(function()
+						keybindConnection:Disconnect()
+					end)
+					task.wait(0.07)
+					keybind = key.KeyCode
+					keybindInst.Text = "  Keybind : "..tostring(keybind):sub(tostring(keybind):len(),tostring(keybind):len()):upper()
+					config["Buttons"][tab["Name"]] = {
+						Enabled = config["Buttons"][tab["Name"]].Enabled,
+						Keybind = tostring(keybind),
+						Dropdowns = {
+							Toggles = {
 
-						},
-						Pickers = {
+							},
+							Pickers = {
 
+							}
 						}
 					}
-				}
-				task.spawn(function()
-					task.wait(0.05)
-					saveConfig()
+					task.spawn(function()
+						task.wait(0.05)
+						saveConfig()
+					end)
 				end)
-			end)
+			end
 		end)
 		btn.MouseButton2Down:Connect(function()
-			if not canDoStuff then return end
-			toggleFrame.Visible = not toggleFrame.Visible
-			if toggleFrame.Visible then
-				toggleFrame.Size = UDim2.fromScale(1,0)
-				game:GetService("TweenService"):Create(toggleFrame,TweenInfo.new(0.2),{Size = UDim2.fromScale(1,0.5)}):Play()
-			else
+			if canDoStuff then
 				toggleFrame.Visible = not toggleFrame.Visible
-				game:GetService("TweenService"):Create(toggleFrame,TweenInfo.new(0.2),{Size = UDim2.fromScale(1,0)}):Play()
-				toggleFrame.Visible = not toggleFrame.Visible
+				if toggleFrame.Visible then
+					toggleFrame.Size = UDim2.fromScale(1,0)
+					game:GetService("TweenService"):Create(toggleFrame,TweenInfo.new(0.2),{Size = UDim2.fromScale(1,0.5)}):Play()
+				else
+					toggleFrame.Visible = not toggleFrame.Visible
+					game:GetService("TweenService"):Create(toggleFrame,TweenInfo.new(0.2),{Size = UDim2.fromScale(1,0)}):Play()
+					toggleFrame.Visible = not toggleFrame.Visible
+				end
+				toggleFrame.LayoutOrder = btn.LayoutOrder + 1
 			end
-			toggleFrame.LayoutOrder = btn.LayoutOrder + 1
 		end)
 
 		game:GetService("UserInputService").InputBegan:Connect(function(key, gpe)
-			if not canDoStuff then return end
-			if gpe then return end
-			if key.KeyCode == Enum.KeyCode[tostring(keybind):sub(tostring(keybind):len(),tostring(keybind):len())] then
-				funcs.Enabled = not funcs.Enabled
-				funcs.ToggleButton(funcs.Enabled)
+			if canDoStuff then
+				if gpe then return end
+				if key.KeyCode == Enum.KeyCode[tostring(keybind):sub(tostring(keybind):len(),tostring(keybind):len())] then
+					funcs.Enabled = not funcs.Enabled
+					funcs.ToggleButton(funcs.Enabled)
+				end
 			end
 		end)
 
@@ -418,6 +437,13 @@ local GuiLibrary = {
 		return #tabs
 	end,
 	Uninject = function()
+		canDoStuff = false
+		task.wait(1)
+		for i,v in pairs(toggleFunctions) do
+			if v.Enabled then
+				v.ToggleButton(false)
+			end
+		end
 		UI:Remove()
 	end,
 }
