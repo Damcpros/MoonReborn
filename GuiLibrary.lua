@@ -206,6 +206,7 @@ arrayUI.ResetOnSpawn = false
 local arrayFrame = Instance.new("Frame",arrayUI)
 arrayFrame.Size = UDim2.fromScale(0.163,1)
 arrayFrame.Position = UDim2.fromScale(0.837,0)
+arrayFrame.BackgroundTransparency = 1
 
 local arrayModules = {}
 
@@ -216,7 +217,7 @@ local function arrayTask(a,m)
 		label.TextXAlignment = Enum.TextXAlignment.Right
 		label.TextSize = 18.5
 		label.TextColor3 = Color3.fromRGB(0,153,255)
-		label.Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X,game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X + 20)
+		label.Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X,game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).Y + 20)
 		table.insert(arrayModules,label)
 		table.sort(arrayModules,function(a,b)
 			local aSize = ""
