@@ -575,6 +575,18 @@ local GuiLibrary = {
 		return #tabs
 	end,
 }
+
+game:GetService("UserInputService").InputBegan:Connect(function(key,gpe)
+	if gpe then return end
+	if key.KeyCode == Enum.KeyCode.Delete then
+		for i,v in pairs(UI:GetDescendants()) do
+			pcall(function()
+				v.Visible = not v.Visible
+			end)
+		end
+	end
+end)
+
 GuiLibrary.MakeWindow({["Name"]="Combat"})
 GuiLibrary.MakeWindow({["Name"]="Movement"})
 GuiLibrary.MakeWindow({["Name"]="Visuals"})
