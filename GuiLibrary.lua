@@ -210,32 +210,51 @@ arrayFrame.BackgroundTransparency = 1
 local arrayLayout = Instance.new("UIListLayout",arrayFrame)
 arrayLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local arrayModules = {}
+local arrayObjects = {}
 
-local function arrayTask(a,m)
-	if a then
-		local label = Instance.new("TextLabel",arrayFrame)
-		label.Text = m.."  "
-		label.TextXAlignment = Enum.TextXAlignment.Right
-		label.TextSize = 18.5
-		label.BackgroundColor3 = Color3.fromRGB(0,0,0)
-		label.TextColor3 = Color3.fromRGB(0,153,255)
-		label.Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."   ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X,game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).Y + 20)
-		table.insert(arrayModules,label)
-		table.sort(arrayModules,function(a,b)
-			local aSize = ""
-			if game:GetService("TextService"):GetTextSize(a.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X == game:GetService("TextService"):GetTextSize(b.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X then
-				aSize = " "
-			end
-			return game:GetService("TextService"):GetTextSize(a.Text..aSize,18.5,Enum.Font.Arial,Vector2.new(0,0)).X > game:GetService("TextService"):GetTextSize(b.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X
+local function arrayFunction(adding,m) -- m = module
+	if adding then
+		if m:lower():find("theme") then return end
+		local currentColor = Color3.fromRGB(0, 153, 255)
+		local label = lib.GetTextLabel({
+			Parent = arrayFrame,
+			Text = m.."  ",
+			TextSize = 23,
+			Font = Enum.Font.Arial,
+			TextColor3 = Color3.fromRGB(0, 153, 255),
+			BackgroundTransparency = 0.4,
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+			TextXAlignment = Enum.TextXAlignment.Right,
+			Size = UDim2.fromOffset(0,30),
+			BorderSizePixel = 0,
+		})
+		game:GetService("TweenService"):Create(label,TweenInfo.new(0.8),{Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."  ", 23, Enum.Font.Arial, Vector2.new(0, 0)).X + 10 + math.random(-0.0003,0.0003), 30)}):Play()
+		table.insert(arrayObjects,label)
+		arrayObjects[m] = label
+		table.sort(arrayObjects,function(a,b)
+			return (game:GetService("TextService"):GetTextSize(a.Text, 23, Enum.Font.Arial, Vector2.new(0, 0)).X + 10) > (game:GetService("TextService"):GetTextSize(b.Text, 23, Enum.Font.Arial, Vector2.new(0, 0)).X + 10)
 		end)
-		for i,v in ipairs(arrayModules) do
+		for i,v in ipairs(arrayObjects) do
 			v.LayoutOrder = i
 		end
 	else
-		for i,v in pairs(arrayModules) do
-			if v.Text == m then
-				table.remove(arrayModules,i)
+		table.sort(arrayObjects,function(a,b)
+			return (game:GetService("TextService"):GetTextSize(a.Text, 23, Enum.Font.Arial, Vector2.new(0, 0)).X + 10) > (game:GetService("TextService"):GetTextSize(b.Text, 23, Enum.Font.Arial, Vector2.new(0, 0)).X + 10)
+		end)
+		for i,v in ipairs(arrayObjects) do
+			v.LayoutOrder = i
+		end
+		local index = 0
+		for i,v in pairs(arrayObjects) do
+			pcall(function()
+				index += 1
+				if v.Text == m.."  " then
+					table.remove(arrayObjects,index)
+					v:Remove()
+				end
+			end)
+			if v.Name == m.."  " then
+				table.remove(arrayObjects,index)
 				v:Remove()
 			end
 		end
@@ -345,7 +364,7 @@ local GuiLibrary = {
 		funcs = {
 			ToggleButton = function(t)
 				funcs.Enabled = t
-				arrayTask(t,tab["Name"])
+				arrayFunction(t,tab["Name"])
 				if t then
 					lib:Notify(tab["Name"].." Has Been Enabled!",1.6,"http://www.roblox.com/asset/?id=9405926389")
 					tab["Function"](true)
