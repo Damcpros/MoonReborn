@@ -212,8 +212,6 @@ arrayLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local arrayModules = {}
 
-print("lib ver 1.0.0")
-
 local function arrayTask(a,m)
 	if a then
 		local label = Instance.new("TextLabel",arrayFrame)
@@ -226,10 +224,10 @@ local function arrayTask(a,m)
 		table.insert(arrayModules,label)
 		table.sort(arrayModules,function(a,b)
 			local aSize = ""
-			if game:GetService("TextService"):GetTextSize(a,18.5,Enum.Font.Arial,Vector2.new(0,0)).X == game:GetService("TextService"):GetTextSize(b,18.5,Enum.Font.Arial,Vector2.new(0,0)).X then
+			if game:GetService("TextService"):GetTextSize(a.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X == game:GetService("TextService"):GetTextSize(b.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X then
 				aSize = " "
 			end
-			return game:GetService("TextService"):GetTextSize(a..aSize,18.5,Enum.Font.Arial,Vector2.new(0,0)).X > game:GetService("TextService"):GetTextSize(b,18.5,Enum.Font.Arial,Vector2.new(0,0)).X
+			return game:GetService("TextService"):GetTextSize(a.Text..aSize,18.5,Enum.Font.Arial,Vector2.new(0,0)).X > game:GetService("TextService"):GetTextSize(b.Text,18.5,Enum.Font.Arial,Vector2.new(0,0)).X
 		end)
 		for i,v in ipairs(arrayModules) do
 			v.LayoutOrder = i
