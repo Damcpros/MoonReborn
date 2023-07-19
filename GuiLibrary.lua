@@ -19,24 +19,179 @@ local config = {
 	["TextBox"] = {}
 }
 
+local lib = {
+	GetScreenGui = function()
+		local ui = Instance.new("ScreenGui")
+		ui.ResetOnSpawn = false
+		ui.Parent = game.Players.LocalPlayer.PlayerGui
+		return ui
+	end,
+	Round = function(item)
+		Instance.new("UICorner",item)
+	end,
+	GetFrame = function(scrolling, content)
+		local frame = (not scrolling and Instance.new("Frame") or Instance.new("ScrollingFrame"))
+		for i, v in pairs(content) do
+			frame[i] = v
+		end
+		return frame
+	end,
+	GetImageLabel = function(content)
+		local ImageLabel = Instance.new("ImageLabel")
+		for i, v in pairs(content) do
+			ImageLabel[i] = v
+		end
+		return ImageLabel
+	end,
+	GetHighlight = function(content)
+		local Highlight = Instance.new("Highlight")
+		for i, v in pairs(content) do
+			Highlight[i] = v
+		end
+		return Highlight
+	end,
+	GetTextLabel = function(content)
+		local label = Instance.new("TextLabel")
+		for i, v in pairs(content) do
+			if i == "BaseText" then
+				label:GetPropertyChangedSignal("Text"):Connect(function()
+					if label.Text:sub(tostring(v):len(),tostring(v):len()) ~= tostring(v) then
+						label.Text = tostring(v).." "..label.Text
+					end
+				end)
+				continue
+			end
+			label[i] = v
+		end
+		return label
+	end,
+	GetBillboardGui = function(content)
+		local Billboard = Instance.new("BillboardGui")
+		for i, v in pairs(content) do
+			Billboard[i] = v
+		end
+		return Billboard
+	end,
+	GetTextButton = function(content)
+		local Button = Instance.new("TextButton")
+		for i, v in pairs(content) do
+			Button[i] = v
+		end
+		return Button
+	end,
+	BindOnLeftClick = function(obj,func)
+		obj.MouseButton1Down:Connect(func)
+	end,
+	BindOnRightClick = function(obj,func)
+		obj.MouseButton2Down:Connect(func)
+	end,
+	BindOnHover = function(obj : TextButton,func,func2)
+		obj.MouseEnter:Connect(func)
+		obj.MouseLeave:Connect(func2)
+	end,
+	BlurImage = function(content)
+		local image = Instance.new("ImageLabel")
+		image.Image = "rbxassetid://13350795660"
+		image.Transparency = 0.5
+		for i,v in pairs(content) do
+			image[i] = v
+		end
+		return image
+	end,
+	AddAutoSort = function(p)
+		local i = Instance.new("UIListLayout",p)
+		return i
+	end,
+}
+
+local notifyUI = lib.GetScreenGui()
+local notifyFrame = lib.GetFrame(false,{
+	Parent = notifyUI,
+	Position = UDim2.fromScale(0.364,0),
+	Size = UDim2.fromScale(0.272,0.47),
+	BackgroundTransparency = 1,
+})
+
+function lib:Notify(text,removeTime,image,barColor)
+	local alert = lib.GetFrame(false,{
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0.75,0),
+		Parent = notifyFrame,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.fromRGB(49, 49, 49)
+	})
+	local image = lib.GetImageLabel({
+		BorderSizePixel = 0,
+		Parent = alert,
+		Size = UDim2.fromScale(0.125,0.8),
+		Image = (image ~= nil and image or "http://www.roblox.com/asset/?id=6641087361"),
+		BackgroundTransparency = 1
+	})
+	local label = lib.GetTextLabel({
+		Parent = alert,
+		Size = UDim2.fromScale(0.86,0.8),
+		Position = UDim2.fromScale(0.123,0.057),
+		BackgroundTransparency = 1,
+		TextScaled = true,
+		Text = text,
+		TextColor3 = Color3.fromRGB(255,255,255),
+		RichText = true
+	})
+	local bar = lib.GetFrame(false,{
+		BorderSizePixel = 0,
+		Parent = alert,
+		Size = UDim2.fromScale(1,0.113),
+		Position = UDim2.fromScale(0,0.887),
+		BackgroundColor3 = (barColor ~= nil and barColor or Color3.fromRGB(0, 115, 255))
+	})
+	game:GetService("TweenService"):Create(alert,TweenInfo.new(0.2),{Size = UDim2.fromScale(0.75,0.08)}):Play()
+	game:GetService("TweenService"):Create(bar,TweenInfo.new(removeTime),{Size = UDim2.fromScale(0,0.113)}):Play()
+	task.spawn(function()
+		task.wait(removeTime)
+		game:GetService("TweenService"):Create(alert,TweenInfo.new(0.2),{Size = UDim2.fromScale(0.75,0)}):Play()
+		task.wait(0.2)
+		alert:Remove()
+	end)
+end
+
+local notifySorter = lib.AddAutoSort(notifyFrame)
+notifySorter.Padding = UDim.new(0.02)
+
 local configPath = "MoonReborn/Configs/"..game.PlaceId..".json"
 local configPath2 = "MoonReborn/Configs/"..game.PlaceId
-if not isfile(configPath) or not isfile("MoonReborn/Configs/") then
+if not isfile(configPath) then
 	makefolder("MoonReborn")
 	makefolder("MoonReborn/Configs/")
 	writefile(configPath,game:GetService("HttpService"):JSONEncode(config))
 end
 
 
-local function saveConfig()
+local function saveConfig(a)
 	task.spawn(function()
 		if isfile(configPath) then
 			delfile(configPath)
+			task.wait(1)
 		end
-		task.wait(1)
-		writefile(configPath,game:GetService("HttpService"):JSONEncode(config))
+
+		writefile(configPath, game:GetService("HttpService"):JSONEncode(a))
+		print("SAVING ATTEMPT")
+
+		local success = false
+		while not success do
+			task.wait()
+
+			if isfile(configPath) then
+				local decodedConfig = game:GetService("HttpService"):JSONDecode(readfile(configPath))
+				if decodedConfig and decodedConfig.Toggles and #decodedConfig.Toggles > 0 then
+					success = true
+				end
+			end
+		end
+
+		print("SAVING SUCCESS")
 	end)
 end
+
 
 local toggles = {
 
@@ -47,6 +202,15 @@ local function loadconfig()
 end
 task.wait(1)
 loadconfig()
+task.spawn(function()
+	task.wait(1)
+	print(config.Toggles == {} and "WARNING : CONFIG IS EMPTY" or "CONFIG SYSTEM : LOADED")
+	if config.Toggles == {} then
+		print("CONFIG ERROR CODE 2")
+	else
+		print(#config.Toggles.." Modules Fetched!")
+	end
+end)
 
 local GuiLibrary = {
 	MakeWindow = function(tab)
@@ -86,7 +250,7 @@ local GuiLibrary = {
 				tabName.Draggable = true
 				config["WindowPositions"][name] = {X = {Scale = tabName.Position.X.Scale,Offset = tabName.Position.X.Offset},Y = {Scale = tabName.Position.Y.Scale,Offset = tabName.Position.Y.Offset}}
 				task.wait(0.05)
-				saveConfig()
+				saveConfig(config)
 			end)
 		end)
 		local tabTimes = 0
@@ -110,6 +274,9 @@ local GuiLibrary = {
 		else
 			tabName.Position = UDim2.fromScale(tonumber(config["WindowPositions"][name].X.Scale),tonumber(config["WindowPositions"][name].Y.Scale))
 		end
+	end,
+	SendNotification = function(text,removeTime,image,barColor)
+		lib:Notify(text,removeTime,image,barColor)
 	end,
 	MakeButton = function(tab)
 		local name = tab["Name"]
@@ -144,9 +311,11 @@ local GuiLibrary = {
 			ToggleButton = function(t)
 				funcs.Enabled = t
 				if t then
+					lib:Notify(tab["Name"].." Has Been Enabled!",1.6,"http://www.roblox.com/asset/?id=9405926389")
 					tab["Function"](true)
 					game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(0, 102, 255)}):Play()
 				else
+					lib:Notify(tab["Name"].." Has Been Disabled!",1.6,"http://www.roblox.com/asset/?id=9405926389")
 					tab["Function"](false)
 					btn.BackgroundTransparency = 0
 					game:GetService("TweenService"):Create(btn,TweenInfo.new(0.3),{BackgroundColor3 = Color3.fromRGB(27,27,27)}):Play()
@@ -164,7 +333,7 @@ local GuiLibrary = {
 				}
 				task.spawn(function()
 					task.wait(0.05)
-					saveConfig()
+					saveConfig(config)
 				end)
 			end,
 			Enabled = false,
@@ -184,7 +353,7 @@ local GuiLibrary = {
 						ToggleInst.Text = t
 						toggle.Value = t
 						task.wait(0.06)
-						saveConfig()
+						saveConfig(config)
 					end,
 				}
 				if toggles[tab["Name"]] == nil then
@@ -207,7 +376,7 @@ local GuiLibrary = {
 					toggle.Value = ToggleInst.Text
 					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
 					task.wait(0.06)
-					saveConfig()
+					saveConfig(config)
 				end)
 				return toggle
 			end,
@@ -253,7 +422,7 @@ local GuiLibrary = {
 					toggle.Toggle(v)
 					config.Toggles[tab["Name"]:gsub(" ","_")].Enabled = v
 					task.wait(0.06)
-					saveConfig()
+					saveConfig(config)
 				end)
 				return toggle
 			end,
@@ -262,7 +431,7 @@ local GuiLibrary = {
 					print("TEST")
 					config.Pickers[tab["Name"]] = {Option = tab["Options"][1]}
 					task.wait(0.06)
-					saveConfig()
+					saveConfig(config)
 				end
 
 				local toggle
@@ -300,7 +469,7 @@ local GuiLibrary = {
 					toggle.SetValue(tabIndex)
 					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
 					task.wait(0.06)
-					saveConfig()
+					saveConfig(config)
 				end)
 				PickerInst.MouseButton2Down:Connect(function()
 					tabIndex -= 1
@@ -310,7 +479,7 @@ local GuiLibrary = {
 					toggle.SetValue(tabIndex)
 					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
 					task.wait(0.06)
-					saveConfig()
+					saveConfig(config)
 				end)
 				return toggle
 			end,
@@ -368,7 +537,7 @@ local GuiLibrary = {
 				}
 				task.spawn(function()
 					task.wait(0.05)
-					saveConfig()
+					saveConfig(config)
 				end)
 			end)
 		end)
@@ -406,16 +575,11 @@ local GuiLibrary = {
 		return #tabs
 	end,
 }
+GuiLibrary.MakeWindow({["Name"]="Combat"})
+GuiLibrary.MakeWindow({["Name"]="Movement"})
+GuiLibrary.MakeWindow({["Name"]="Visuals"})
+GuiLibrary.MakeWindow({["Name"]="Utility"})
+GuiLibrary.MakeWindow({["Name"]="Scripts"})
 
-game:GetService("UserInputService").InputBegan:Connect(function(key,gpe)
-	if gpe then return end
-	if key.KeyCode == Enum.KeyCode.Delete then
-		for i,v in pairs(UI:GetDescendants()) do
-			pcall(function()
-				v.Visible = not v.Visible
-			end)
-		end
-	end
-end)
-
+GuiLibrary.SendNotification("Moon Loaded!",10)
 return GuiLibrary
