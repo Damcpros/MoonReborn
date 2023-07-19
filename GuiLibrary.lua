@@ -200,17 +200,48 @@ local toggles = {
 local function loadconfig()
 	config = (game:GetService("HttpService"):JSONDecode(readfile(configPath)))
 end
+
+local arrayUI = Instance.new("ScreenGui",lplr.PlayerGui)
+arrayUI.ResetOnSpawn = false
+local arrayFrame = Instance.new("Frame",arrayUI)
+arrayFrame.Size = UDim2.fromScale(0.163,1)
+arrayFrame.Position = UDim2.fromScale(0.837,0)
+
+local arrayModules = {}
+
+local function arrayTask(a,m)
+	if a then
+		local label = Instance.new("TextLabel",arrayFrame)
+		label.Text = m.."  "
+		label.TextXAlignment = Enum.TextXAlignment.Right
+		label.TextSize = 18.5
+		label.TextColor3 = Color3.fromRGB(0,153,255)
+		label.Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X,game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X + 20)
+		table.insert(arrayModules,label)
+		table.sort(arrayModules,function(a,b)
+			local aSize = ""
+			if game:GetService("TextService"):GetTextSize(a,18.5,Enum.Font.Arial,Vector2.new(0,0)).X == game:GetService("TextService"):GetTextSize(b,18.5,Enum.Font.Arial,Vector2.new(0,0)).X then
+				aSize = " "
+			end
+			return game:GetService("TextService"):GetTextSize(a..aSize,18.5,Enum.Font.Arial,Vector2.new(0,0)).X > game:GetService("TextService"):GetTextSize(b,18.5,Enum.Font.Arial,Vector2.new(0,0)).X
+		end)
+		for i,v in ipairs(arrayModules) do
+			v.LayoutOrder = i
+		end
+	else
+		for i,v in pairs(arrayModules) do
+			if v.Text == m then
+				table.remove(arrayModules,i)
+				v:Remove()
+			end
+		end
+	end
+end
+
 task.wait(1)
 loadconfig()
-task.spawn(function()
-	task.wait(1)
-	print(config.Toggles == {} and "WARNING : CONFIG IS EMPTY" or "CONFIG SYSTEM : LOADED")
-	if config.Toggles == {} then
-		print("CONFIG ERROR CODE 2")
-	else
-		print(#config.Toggles.." Modules Fetched!")
-	end
-end)
+
+
 
 local GuiLibrary = {
 	MakeWindow = function(tab)
@@ -306,10 +337,10 @@ local GuiLibrary = {
 		toggleFrame.ZIndex = 2
 		local keybind = config["Buttons"][tab["Name"]].Keybind
 		local toggleFrameLayout = Instance.new("UIListLayout",toggleFrame)
-
 		funcs = {
 			ToggleButton = function(t)
 				funcs.Enabled = t
+				arrayTask(t,tab["Name"])
 				if t then
 					lib:Notify(tab["Name"].." Has Been Enabled!",1.6,"http://www.roblox.com/asset/?id=9405926389")
 					tab["Function"](true)
