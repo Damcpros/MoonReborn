@@ -216,6 +216,7 @@ local function arrayTask(a,m)
 		label.Text = m.."  "
 		label.TextXAlignment = Enum.TextXAlignment.Right
 		label.TextSize = 18.5
+		label.BackgroundColor3 = Color3.fromRGB(0,0,0)
 		label.TextColor3 = Color3.fromRGB(0,153,255)
 		label.Size = UDim2.fromOffset(game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).X,game:GetService("TextService"):GetTextSize(m.."  ",18.5,Enum.Font.Arial,Vector2.new(0,0)).Y + 20)
 		table.insert(arrayModules,label)
