@@ -212,6 +212,8 @@ arrayLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local arrayModules = {}
 
+print("lib ver 1.0.0")
+
 local function arrayTask(a,m)
 	if a then
 		local label = Instance.new("TextLabel",arrayFrame)
