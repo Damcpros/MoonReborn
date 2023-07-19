@@ -338,6 +338,7 @@ local GuiLibrary = {
 		toggleFrame.ZIndex = 2
 		local keybind = config["Buttons"][tab["Name"]].Keybind
 		local toggleFrameLayout = Instance.new("UIListLayout",toggleFrame)
+		toggleFrameLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		funcs = {
 			ToggleButton = function(t)
 				funcs.Enabled = t
