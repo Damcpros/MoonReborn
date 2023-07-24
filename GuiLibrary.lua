@@ -333,6 +333,7 @@ local GuiLibrary = {
 		lib:Notify(text,removeTime,image,barColor)
 	end,
 	MakeButton = function(tab)
+		local origTab = tab
 		local name = tab["Name"]
 		if config["Buttons"][tab["Name"]] == nil then
 			config["Buttons"][tab["Name"]] = {
@@ -436,10 +437,10 @@ local GuiLibrary = {
 				return toggle
 			end,
 			NewToggle = function(tab)
-				if config.Toggles[tab["Name"]:gsub(" ","_")] == nil then
-					config.Toggles[tab["Name"]:gsub(" ","_")] = {Enabled = false}
+				if config.Toggles[tab["Name"]:gsub(" ","_")..origTab["Name"]] == nil then
+					config.Toggles[tab["Name"]:gsub(" ","_")..origTab["Name"]] = {Enabled = false}
 				else
-					config.Toggles[tab["Name"]:gsub(" ","_")] = {Enabled = config.Toggles[tab["Name"]:gsub(" ","_")].Enabled}
+					config.Toggles[tab["Name"]:gsub(" ","_")..origTab["Name"]] = {Enabled = config.Toggles[tab["Name"]:gsub(" ","_")].Enabled}
 				end
 
 				local toggle
@@ -469,22 +470,22 @@ local GuiLibrary = {
 				ToggleInst.ZIndex = 5
 				ToggleInst.TextColor3 = Color3.fromRGB(255,255,255)
 				ToggleInst.TextSize = 12
-				if config.Toggles[tab["Name"]:gsub(" ","_")].Enabled then
+				if config.Toggles[tab["Name"]:gsub(" ","_")..origTab["Name"]].Enabled then
 					toggle.Toggle(true)
 				end
 				ToggleInst.MouseButton1Down:Connect(function()
 					local v = not toggle.Enabled
 					toggle.Toggle(v)
-					config.Toggles[tab["Name"]:gsub(" ","_")].Enabled = v
+					config.Toggles[tab["Name"]:gsub(" ","_")..origTab["Name"]].Enabled = v
 					task.wait(0.06)
 					saveConfig(config)
 				end)
 				return toggle
 			end,
 			NewPicker = function(tab)
-				if config.Pickers[tab["Name"]] == nil then
+				if config.Pickers[tab["Name"]..origTab["Name"]] == nil then
 					print("TEST")
-					config.Pickers[tab["Name"]] = {Option = tab["Options"][1]}
+					config.Pickers[tab["Name"]..origTab["Name"]] = {Option = tab["Options"][1]}
 					task.wait(0.06)
 					saveConfig(config)
 				end
@@ -511,7 +512,7 @@ local GuiLibrary = {
 				PickerInst.TextSize = 12
 				local tabIndex = 1
 				for i,v in pairs(tab["Options"]) do
-					if v == config.Pickers[tab["Name"]].Option then
+					if v == config.Pickers[tab["Name"]..origTab["Name"]].Option then
 						toggle.SetValue(i)
 						tabIndex = i
 					end
@@ -522,7 +523,7 @@ local GuiLibrary = {
 						tabIndex = 1
 					end
 					toggle.SetValue(tabIndex)
-					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
+					config.Pickers[tab["Name"]..origTab["Name"]] = {Option = tab["Options"][tabIndex]}
 					task.wait(0.06)
 					saveConfig(config)
 				end)
@@ -532,7 +533,7 @@ local GuiLibrary = {
 						tabIndex = #tab["Options"]
 					end
 					toggle.SetValue(tabIndex)
-					config.Pickers[tab["Name"]] = {Option = tab["Options"][tabIndex]}
+					config.Pickers[tab["Name"]..origTab["Name"]] = {Option = tab["Options"][tabIndex]}
 					task.wait(0.06)
 					saveConfig(config)
 				end)
