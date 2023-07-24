@@ -394,10 +394,10 @@ local GuiLibrary = {
 			end,
 			Enabled = false,
 			NewTextBox = function(tab)
-				if config.TextBox[tab["Name"]:gsub(" ","_")] == nil then
-					config.TextBox[tab["Name"]:gsub(" ","_")] = {Text = ""}
+				if config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]] == nil then
+					config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]] = {Text = ""}
 				else
-					config.TextBox[tab["Name"]:gsub(" ","_")] = {Text = config.TextBox[tab["Name"]:gsub(" ","_")].Text}
+					config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]] = {Text = config.TextBox[tab["Name"]:gsub(" ","_")].Text}
 				end
 
 				local toggle
@@ -408,6 +408,7 @@ local GuiLibrary = {
 						config.TextBox[tab["Name"]:gsub(" ","_")].Text = t
 						ToggleInst.Text = t
 						toggle.Value = t
+						tab["Function"](t)
 						task.wait(0.06)
 						saveConfig(config)
 					end,
@@ -423,14 +424,14 @@ local GuiLibrary = {
 				ToggleInst.ZIndex = 5
 				ToggleInst.TextColor3 = Color3.fromRGB(255,255,255)
 				ToggleInst.TextSize = 12
-				if config.TextBox[tab["Name"]:gsub(" ","_")].Text then
-					toggle.SetValue(config.TextBox[tab["Name"]:gsub(" ","_")].Text)
-					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
+				if config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]].Text then
+					toggle.SetValue(config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]].Text)
+					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]].Text
 				end
 				ToggleInst.FocusLost:Connect(function()
 					config.TextBox[tab["Name"]:gsub(" ","_")].Text = ToggleInst.Text
 					toggle.Value = ToggleInst.Text
-					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")].Text
+					ToggleInst.Text = "  "..tab["Name"].." : "..config.TextBox[tab["Name"]:gsub(" ","_")..origTab["Name"]].Text
 					task.wait(0.06)
 					saveConfig(config)
 				end)
